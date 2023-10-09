@@ -13,10 +13,17 @@ class CustomMattermost(models.Model):
         picking_name = self.name
         picking_move_lines = self.move_lines
         result_of_products = ""
+        num = 1
         for products in picking_move_lines:
             result_of_products += (
-                products.name + " Qty :" + str(products.quantity_done) + "\n"
+                str(num)
+                + ". "
+                + products.name
+                + " | Qty : "
+                + str(products.quantity_done)
+                + "\n"
             )
+            num += 1
 
         # get data purchase order from picking
         purchase_id = self.purchase_id
@@ -35,7 +42,7 @@ class CustomMattermost(models.Model):
             + str(picking_name)
             + "\nInternal Notes : "
             + str(internal_notes)
-            + "\nProducts :"
+            + "\nProducts diterima :"
             + "\n"
             + str(result_of_products)
             + ' "}'
