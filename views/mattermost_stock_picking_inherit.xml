@@ -1,0 +1,14 @@
+<odoo>
+  <data>
+    <record id="view_mattermost_stock_picking_form_inherit" model="ir.ui.view">
+          <field name="name">mattermost.stock.picking.inherit</field>
+          <field name="model">stock.picking</field>
+          <field name="inherit_id" ref="stock.view_picking_form"/>
+          <field name="arch" type="xml">
+              <button name="268" position="after">
+                  <button name="sent_stock_webhooks" string="Sent to Mattermost" type="object"/>
+              </button>
+          </field>
+    </record>
+  </data>
+</odoo>
