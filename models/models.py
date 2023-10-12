@@ -1,33 +1,38 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api, _
+from odoo import models, fields, api
 from odoo.exceptions import UserError
 import requests
+import re
 
 
 class CustomMattermost(models.Model):
     _inherit = "stock.picking"
 
+    @api.model
+    def check_symbols(self, input_string):
+        # Use a regular expression to remove all non-alphanumeric characters
+        clean_string = re.sub(r"[^a-zA-Z0-9\s\[\].]", "", input_string)
+        return clean_string
+
+    @api.model
     def sent_stock_webhooks(self):
         # get data picking
         picking_name = self.name
         picking_move_lines = self.move_lines
+        warehouse_name = self.location_dest_id.location_id.name
         result_of_products = ""
-        num = 1
+
         for products in picking_move_lines:
+            product_name = self.check_symbols(products.name)
             result_of_products += (
-                str(num)
-                + ". "
-                + products.name
-                + " | Qty : "
-                + str(products.quantity_done)
-                + "\n"
+                product_name + " | Qty : " + str(int(products.quantity_done)) + "\n"
             )
-            num += 1
 
         # get data purchase order from picking
         purchase_id = self.purchase_id
         purchase_order = purchase_id.name
+        vendor_name = purchase_id.partner_id.name
         internal_notes = purchase_id.x_internal_notes
 
         # sending hooks to mattermosst from odoo,
@@ -35,18 +40,27 @@ class CustomMattermost(models.Model):
         headers = {
             "Content-Type": "application/json",
         }
+
         values = (
-            '{ "text": "['
+            '{ "text": "### '
             + str(purchase_order)
-            + "] -- sudah dilakukan penerimaan dengan nomor RO / Picking : "
-            + str(picking_name)
-            + "\nInternal Notes : "
+            + "\n**Vendor** : "
+            + str(vendor_name)
+            + "\n**Warehouse** : "
+            + str(warehouse_name)
+            + "\n**Interal Notes** :\n\n"
             + str(internal_notes)
-            + "\nProducts diterima :"
-            + "\n"
+            + "\n @ariel"
+            + "\n\n :white_check_mark: **"
+            + str(picking_name)
+            + "**"
+            + "\n Products diterima :"
+            + "\n```\n"
             + str(result_of_products)
+            + "\n```"
             + ' "}'
         )
+
         hooks = "https://unbiased-titmouse-first.ngrok-free.app/hooks/zwu5qhqkzbdgbfhojyz3xxegue"
         response = requests.post(url=hooks, headers=headers, data=values, verify=False)
 
