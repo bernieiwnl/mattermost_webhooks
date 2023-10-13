@@ -6,7 +6,7 @@
           <field name="inherit_id" ref="stock.view_picking_form"/>
           <field name="arch" type="xml">
               <button name="268" position="after">
-                  <button name="sent_stock_webhooks" string="Sent to Mattermost" type="object"/>
+                  <button name="sent_stock_webhooks" string="Sent to Mattermost" type="object" attrs="{'invisible': ['|',('state', '!=', 'done'),('picking_type_id', '=', 2)]}"/>
               </button>
           </field>
     </record>

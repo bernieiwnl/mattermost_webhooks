@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-from odoo import models, fields, api
+from odoo import models, fields, api, _
 from odoo.exceptions import UserError
 import requests
 import re
@@ -9,13 +9,11 @@ import re
 class CustomMattermost(models.Model):
     _inherit = "stock.picking"
 
-    @api.model
     def check_symbols(self, input_string):
-        # Use a regular expression to remove all non-alphanumeric characters
-        clean_string = re.sub(r"[^a-zA-Z0-9\s\[\].]", "", input_string)
+        # Use a regular expression to remove all non-alphanumeric characters except [], ., and -
+        clean_string = re.sub(r"[^a-zA-Z0-9\s\[\].-]", "", input_string)
         return clean_string
 
-    @api.model
     def sent_stock_webhooks(self):
         # get data picking
         picking_name = self.name
